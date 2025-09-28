@@ -21,6 +21,7 @@ data-files:         cl100k_base.tiktoken
                   , o200k_base.tiktoken
                   , p50k_base.tiktoken
                   , r50k_base.tiktoken
+                  , llama3_base.tiktoken
 
 library
     build-depends:    base                 >= 4.15.0.0 && < 5

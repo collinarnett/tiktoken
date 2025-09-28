@@ -36,6 +36,7 @@ module Tiktoken
     , addSpecialTokens
 
       -- * Stock Encodings
+    , llama3_base
     , r50k_base
     , p50k_base
     , p50k_edit
@@ -177,6 +178,29 @@ loadEncoding file regex specialTokens = do
         Right encoding -> return encoding
 
     return (addSpecialTokens specialTokens encoding)
+
+-- | @llama3_base@ `Encoding`
+llama3_base :: Encoding
+llama3_base =
+    Unsafe.unsafePerformIO
+        (loadEncoding "llama3_base.tiktoken" regex $ Map.fromList [(token, 128000 + i) | (token, i) <- zip (specialTokens ++ reservedTokens) [0..]])
+  where
+    num_reserved_special_tokens = 256
+    specialTokens = [
+            "<|begin_of_text|>",
+            "<|end_of_text|>",
+            "<|reserved_special_token_0|>",
+            "<|reserved_special_token_1|>",
+            "<|finetune_right_pad_id|>",
+            "<|step_id|>",
+            "<|start_header_id|>",
+            "<|end_header_id|>",
+            "<|eom_id|>",
+            "<|python_tag|>",
+            "<|image|>"] :: [ByteString]
+    reservedTokens = [ "<|reserved_special_token_" <> Char8.pack (show $ 2 + i) <> "|>"  | i <- [0..(num_reserved_special_tokens - length specialTokens)] ] :: [ByteString]
+    regex = [r|'(?i:'s|'t|'re|'ve|'m|'ll|'d)|[^\r\n\p{L}\p{N}]?\p{L}+|\p{N}{1,3}| ?[^\s\p{L}\p{N}]+[\r\n]*|\s*[\r\n]+|\s+(?!\S)|\s+'|]
+{-# NOINLINE llama3_base #-}
 
 -- | @r50k_base@ `Encoding`
 r50k_base :: Encoding
