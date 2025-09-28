@@ -199,7 +199,7 @@ llama3_base =
             "<|python_tag|>",
             "<|image|>"] :: [ByteString]
     reservedTokens = [ "<|reserved_special_token_" <> Char8.pack (show $ 2 + i) <> "|>"  | i <- [0..(num_reserved_special_tokens - length specialTokens)] ] :: [ByteString]
-    regex = [r|'(?i:'s|'t|'re|'ve|'m|'ll|'d)|[^\r\n\p{L}\p{N}]?\p{L}+|\p{N}{1,3}| ?[^\s\p{L}\p{N}]+[\r\n]*|\s*[\r\n]+|\s+(?!\S)|\s+'|]
+    regex = [r|'(?i:'s|'t|'re|'ve|'m|'ll|'d)|[^\r\n\p{L}\p{N}]?\p{L}+|\p{N}{1,3}| ?[^\s\p{L}\p{N}]+[\r\n]*|\s*[\r\n]+|\s+(?!\S)|\s+|]
 {-# NOINLINE llama3_base #-}
 
 -- | @r50k_base@ `Encoding`
