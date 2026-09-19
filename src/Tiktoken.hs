@@ -37,6 +37,7 @@ module Tiktoken
 
       -- * Stock Encodings
     , llama3_base
+    , qwen3_5_base
     , r50k_base
     , p50k_base
     , p50k_edit
@@ -201,6 +202,56 @@ llama3_base =
     reservedTokens = [ "<|reserved_special_token_" <> Char8.pack (show $ 2 + i) <> "|>"  | i <- [0..(num_reserved_special_tokens - length specialTokens)] ] :: [ByteString]
     regex = [r|'(?i:'s|'t|'re|'ve|'m|'ll|'d)|[^\r\n\p{L}\p{N}]?\p{L}+|\p{N}{1,3}| ?[^\s\p{L}\p{N}]+[\r\n]*|\s*[\r\n]+|\s+(?!\S)|\s+|]
 {-# NOINLINE llama3_base #-}
+
+-- | @qwen3_5_base@ `Encoding`
+--
+--   This is the encoding shared by the Qwen3.5 and Qwen3.8 model families,
+--   whose vocabulary is distinct from the one used by Qwen3 and earlier.
+--
+--   Upstream applies NFC normalization before splitting the input, which an
+--   `Encoding` does not do, so text has to already be in NFC to tokenize to
+--   the same ranks upstream produces.
+qwen3_5_base :: Encoding
+qwen3_5_base =
+    Unsafe.unsafePerformIO
+        (loadEncoding "qwen3_5_base.tiktoken" regex $ Map.fromList (zip specialTokens [248044 ..]))
+  where
+    specialTokens = [
+            "<|endoftext|>",
+            "<|im_start|>",
+            "<|im_end|>",
+            "<|object_ref_start|>",
+            "<|object_ref_end|>",
+            "<|box_start|>",
+            "<|box_end|>",
+            "<|quad_start|>",
+            "<|quad_end|>",
+            "<|vision_start|>",
+            "<|vision_end|>",
+            "<|vision_pad|>",
+            "<|image_pad|>",
+            "<|video_pad|>",
+            "<tool_call>",
+            "</tool_call>",
+            "<|fim_prefix|>",
+            "<|fim_middle|>",
+            "<|fim_suffix|>",
+            "<|fim_pad|>",
+            "<|repo_name|>",
+            "<|file_sep|>",
+            "<tool_response>",
+            "</tool_response>",
+            "<think>",
+            "</think>",
+            "<|audio_start|>",
+            "<|audio_end|>",
+            "<tts_pad>",
+            "<tts_text_bos>",
+            "<tts_text_eod>",
+            "<tts_text_bos_single>",
+            "<|audio_pad|>"] :: [ByteString]
+    regex = [r|(?i:'s|'t|'re|'ve|'m|'ll|'d)|[^\r\n\p{L}\p{N}]?[\p{L}\p{M}]+|\p{N}| ?[^\s\p{L}\p{M}\p{N}]+[\r\n]*|\s*[\r\n]+|\s+(?!\S)|\s+|]
+{-# NOINLINE qwen3_5_base #-}
 
 -- | @r50k_base@ `Encoding`
 r50k_base :: Encoding
